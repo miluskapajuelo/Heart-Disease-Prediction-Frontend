@@ -1,120 +1,156 @@
 "use client";
-import { ChangeEvent, useState } from "react";
 import {
-  Box,
-  Heading,
-  Text,
+  chakra,
+ Box,
   Button,
+  Container,
+  Flex,
+  Heading,
+  HStack,
+  Icon,
   SimpleGrid,
-  Input,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
+import {
+  Activity,
+  ArrowRight,
+  HeartPulse,
+} from "lucide-react";
+import {SiteHeader} from './../components/SiteHeader'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-
-
-const FIELDS: FieldConfig[] = [
-  { name: "age", label: "age" },
-  { name: "sex", label: "sex (0=F, 1=M)" },
-  { name: "cp", label: "Chest pain (0-3)" },
-  { name: "trestbps", label: "Blood Pressure" },
-  { name: "chol", label: "Cholesterol" },
-  { name: "fbs", label: "Fasting Blood Sugar (0/1)" },
-  { name: "restecg", label: "Resting ECG (0-2)" },
-  { name: "thalach", label: "Maximum heart rate" },
-  { name: "exang", label: "Exertional angina (0/1)" },
-  { name: "oldpeak", label: "Oldpeak" },
-  { name: "slope", label: "Slope (0-2)" },
-  { name: "ca", label: "Vessels (ca 0-3)" },
-  { name: "thal", label: "Thal (0-3)" },
-];
 
 export default function Home() {
-  const [result, setResult] = useState<PredictionResult | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [form, setForm] = useState<PatientForm>({
-    age: "",
-    sex: "",
-    cp: "",
-    trestbps: "",
-    chol: "",
-    fbs: "",
-    restecg: "",
-    thalach: "",
-    exang: "",
-    oldpeak: "",
-    slope: "",
-    ca: "",
-    thal: "",
-  });
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
-
-  async function handleSubmit(){
-      setLoading(true)
-      setError(null)
-      setResult(null)
-
-      try{
-        const payload = Object.fromEntries(
-          Object.entries(form).map(([key, value]) => [key, Number(value)])
-        );
-
-        const res = await fetch(`${API_URL}/predict`, {
-          method : "POST",
-          headers: {"Content-type":"application/json"},
-          body: JSON.stringify(payload)
-        })
-        if(!res.ok) throw new Error(`Error ${res.status}`)
-
-        const data: PredictionResult = await res.json()
-        setResult(data)
-      }
-      catch(err){
-        setError("The prediction could not be obtained")
-      }
-      finally{
-        setLoading(false)
-      }
-  }
 
   return (
+    <Box minH="100vh">
+      <SiteHeader />
+     
+      <Box
+        bgGradient="to-b"
+        gradientFrom="brand.50"
+        gradientTo="bg.canvas"
+      >
+        <Container maxW="1120px" px={{base: 5, md: 8}} py={{base:14, md:20}}>
+        <Flex direction={{base:"column", lg:"row"}} align="center" gap={{base:10, lg:16}}>
+          <VStack align="start" gap={6} flex="1">
+
+              <Heading
+                pt={20}
+                as="h1"
+                fontSize={{ base: "4xl", md: "6xl" }}
+                lineHeight="1.05"
+                letterSpacing="-0.03em"
+                fontWeight="800"
+              >
+                Understand heart disease risk with clarity
+              </Heading>
+
+              <Text fontSize={{ base: "lg", md: "xl" }} color="fg.muted" maxW="540px">
+                A machine-learning tool that turns routine clinical measurements into a clear,
+                interpretable cardiovascular risk estimate — to support, never replace, a clinician&apos;s judgment.
+              </Text>
+
+              <HStack gap={4} pt={2}>
+                <Button asChild size="xl" colorPalette="brand" borderRadius="l2" px={8}>
+                  <NextLink href="/calculator">
+                    Calculate Risk
+                    <Icon as={ArrowRight} boxSize={5} />
+                  </NextLink>
+                </Button>
+              </HStack>
+            </VStack>
+
+            <Box flex="1" w="full" maxW="480px">
+              <HeroVisual />
+            </Box>
+          </Flex>
+        </Container>
+    <Container maxW="1120px" px={{ base: 5, md: 8 }} py={{ base: 14, md: 20 }}>
+        <VStack
+          bg="brand.700"
+          color="white"
+          borderRadius="l3"
+          p={{ base: 8, md: 12 }}
+          gap={5}
+          textAlign="center"
+        >
+          <Heading fontSize={{ base: "2xl", md: "3xl" }} letterSpacing="-0.02em">
+            Ready to estimate cardiovascular risk?
+          </Heading>
+          <Text color="brand.100" maxW="560px">
+            Takes about a minute. Remember: this is a research and educational tool — results are an
+            estimate and do not replace professional medical evaluation.
+          </Text>
+          <Button asChild size="xl" bg="white" color="brand.700" borderRadius="l2" px={8} _hover={{ bg: "brand.50" }}>
+            <NextLink href="/calculator">
+              Open the Risk Calculator
+              <Icon as={ArrowRight} boxSize={5} />
+            </NextLink>
+          </Button>
+        </VStack>
+    </Container>
+
+      <Box as="footer" borderTop="1px solid" borderColor="blackAlpha.100" py={6}>
+        <Container maxW="1120px" px={{ base: 5, md: 8 }}>
+          <Text fontSize="xs" color="fg.muted" textAlign="center">
+            CardioPredictor is a machine-learning research tool and is not a medical device. It does not
+            provide a diagnosis. Always consult a qualified healthcare professional.
+          </Text>
+        </Container>
+      </Box>
+    </Box>
+    </Box>
+  );
+}
+
+
+function HeroVisual() {
+  return (
     <Box
-      minH="100vh"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
+      bg="bg.surface"
+      borderRadius="l3"
+      boxShadow="cardHover"
       p={8}
+      position="relative"
+      overflow="hidden"
     >
-      <Heading size="2xl">Heart Disease Risk Predictor</Heading>
-      <SimpleGrid column={2} gap={4}>
-        {FIELDS.map((f)=>(
-          <Box key={f.name}>
-            <Text mb={1} fontSize="sm">
-              {f.label}
-            </Text>
-            <Input
-              name={f.name}
-              type="number"
-              value={form[f.name]}
-              onChange={handleChange}
+      <Flex justify="space-between" align="center" mb={6}>
+        <HStack gap={2} color="brand.600">
+          <Icon as={Activity} boxSize={5} />
+          <Text fontWeight="700">Live signal</Text>
+        </HStack>
+        <Icon as={HeartPulse} boxSize={7} color="riskCritical.solid" />
+      </Flex>
+
+      <chakra.svg  as="svg" viewBox="0 0 400 120" w="full" h="120px">
+        <polyline
+          points="0,60 60,60 80,60 95,20 110,100 130,60 200,60 220,60 235,30 250,90 268,60 400,60"
+          fill="none"
+          stroke="#1F6FCB"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-          </Box>
+      </chakra.svg >
+
+      <SimpleGrid columns={3} gap={4} mt={6}>
+        {[
+          { k: "Inputs", v: "13" },
+          { k: "ROC-AUC", v: "0.90" },
+          { k: "Latency", v: "<1s" },
+        ].map((m) => (
+          <VStack key={m.k} gap={0} bg="brand.50" borderRadius="l1" py={3}>
+            <Text fontSize="2xl" fontWeight="800" color="brand.700">
+              {m.v}
+            </Text>
+            <Text fontSize="xs" color="fg.muted" fontWeight="600">
+              {m.k}
+            </Text>
+          </VStack>
         ))}
       </SimpleGrid>
-      <Button mt={6} colorPalette="blue" onClick={handleSubmit}>
-        Predict risk
-      </Button>
-      {error && <Text mb={4} color="red.500">{error}</Text>}
-      {result && (
-        <Text mt={4} fontSize="lg">
-          {result.risk_label} - {(result.probability * 100).toFixed(1)}%
-        </Text>
-      )}
     </Box>
   );
 }
