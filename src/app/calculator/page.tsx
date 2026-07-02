@@ -70,6 +70,10 @@ export default function CalculatorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if(res.status === 429){
+        setApiError("You have made too many requests. Please wait a minute and try again")
+        return
+      }
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data: PredictionResult = await res.json();
       setResult(data);
