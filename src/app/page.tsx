@@ -153,8 +153,7 @@ export default function Home() {
                 maxW="520px"
               >
                 A friendly machine-learning tool that turns routine measurements
-                into a clear cardiovascular risk estimate — made to support you
-                and your doctor, never to replace them.
+                into a clear cardiovascular risk estimate.
               </Text>
 
               <HStack gap={3} pt={2} wrap="wrap">
@@ -365,7 +364,7 @@ export default function Home() {
             </Heading>
             <Text color="brand.100" maxW="560px">
               Takes about a minute. Remember: this is a research and educational
-              tool — results are an estimate and do not replace professional
+              tool, results are an estimate and do not replace professional
               medical evaluation.
             </Text>
             <Button
@@ -395,8 +394,7 @@ export default function Home() {
         <Container maxW="1420px" px={{ base: 5, md: 8 }}>
           <Text fontSize="xs" color="fg.muted" textAlign="center">
             CardioPredictor is a machine-learning research tool and is not a
-            medical device. It does not provide a diagnosis. Always consult a
-            qualified healthcare professional.
+            medical device. It does not provide a diagnosis.
           </Text>
         </Container>
       </Box>
