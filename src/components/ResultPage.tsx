@@ -20,6 +20,7 @@ import {
 import { RiskPage } from '@/components/RiskPage';
 import { Heartbeat } from "@/components/Heartbeat";
 import { getRiskTier, RISK_SCALE, type PredictionResult, RISK_HEX } from "@/lib/risk";
+import { useEffect } from "react";
 
 export function ResultPanel({ result }: { result: PredictionResult }) {
   const tier = getRiskTier(result.probability);
@@ -27,6 +28,7 @@ export function ResultPanel({ result }: { result: PredictionResult }) {
   const pct = Math.round(result.probability * 100);
   const solid = `${tier.key}.solid`;
   const hex = RISK_HEX[tier.key];
+
 
   return (
     <VStack
@@ -84,32 +86,6 @@ export function ResultPanel({ result }: { result: PredictionResult }) {
       <Text className="rise" style={{ animationDelay: "0.34s" }} fontSize="sm" color="fg.muted" lineHeight="1.6">
         {tier.interpretation}
       </Text>
-
-
-      <Box className="rise" style={{ animationDelay: "0.4s" }}>
-        <Text fontSize="xs" fontWeight="700" textTransform="uppercase" letterSpacing="0.08em" color="fg.muted" mb={3}>
-          Suggested next steps
-        </Text>
-        <Flex gap={2.5} wrap="wrap">
-          {tier.recommendations.map((r) => (
-            <HStack
-              key={r}
-              gap={2}
-              px={3.5}
-              py={2}
-              border="1px solid"
-              borderColor="blackAlpha.200"
-              borderRadius="full"
-              transition="all 0.2s ease"
-              _hover={{ borderColor: solid, transform: "translateY(-1px)" }}
-            >
-              <Text fontSize="sm" fontWeight="500">
-                {r}
-              </Text>
-            </HStack>
-          ))}
-        </Flex>
-      </Box>
 
       <HStack gap={2} pt={4} borderTop="1px solid" borderColor="blackAlpha.100" align="start">
         <Icon as={Info} boxSize={3.5} color="fg.muted" mt={0.5} />

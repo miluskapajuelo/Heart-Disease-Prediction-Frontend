@@ -9,10 +9,10 @@ import {
   Text,
   Icon,
   Box,
-  IconButton
+  IconButton,
 } from "@chakra-ui/react";
 import { Info } from "lucide-react";
-import { Tooltip } from '@/components/ui/tooltip';
+import { Tooltip } from "@/components/ui/tooltip";
 import type { FieldConfig } from "@/data/fields";
 
 interface FieldInputProps {
@@ -23,34 +23,53 @@ interface FieldInputProps {
   onChange: (name: string, value: string) => void;
 }
 
-export function FieldInput({ field, value, placeholder, error, onChange }: FieldInputProps) {
+export function FieldInput({
+  field,
+  value,
+  placeholder,
+  error,
+  onChange,
+}: FieldInputProps) {
   return (
     <Field.Root invalid={!!error}>
-      <Field.Label display="flex" alignItems="center" gap={1.5} fontWeight="600">
+      <Field.Label
+        display="flex"
+        alignItems="center"
+        gap={1.5}
+        fontWeight="600"
+      >
         {field.label}
         {field.unit && (
           <Text as="span" color="fg.muted" fontWeight="400" fontSize="sm">
             ({field.unit})
           </Text>
         )}
-       {field.tooltip && 
-       (<Tooltip content={field.tooltip} showArrow>
-        <IconButton
-            type="button"
-            variant="ghost"
-            aria-label={`More information about ${field.label}`}
-            color="fg.muted"
-            _hover={{ color: "brand.500" }}
-            lineHeight="0"
-          >
-            <Icon as={Info} boxSize={4} />
-          </IconButton>
-        </Tooltip>)} 
-          
+        {field.tooltip && (
+          <Tooltip content={field.tooltip} showArrow>
+            <IconButton
+              type="button"
+              variant="ghost"
+              aria-label={`More information about ${field.label}`}
+              color="fg.muted"
+              _hover={{ color: "brand.500" }}
+              lineHeight="0"
+            >
+              <Icon as={Info} boxSize={4} />
+            </IconButton>
+          </Tooltip>
+        )}
       </Field.Label>
 
       {field.type === "number" && (
-        <InputGroup endElement={field.unit ? <Text color="fg.muted" fontSize="sm">{field.unit}</Text> : undefined}>
+        <InputGroup
+          endElement={
+            field.unit ? (
+              <Text color="fg.muted" fontSize="sm">
+                {field.unit}
+              </Text>
+            ) : undefined
+          }
+        >
           <Input
             type="number"
             inputMode="decimal"
@@ -69,6 +88,7 @@ export function FieldInput({ field, value, placeholder, error, onChange }: Field
             value={value}
             onChange={(e) => onChange(field.name, e.target.value)}
             borderRadius="l1"
+            cursor="pointer"
           >
             <option value="" disabled>
               Select an option
@@ -89,8 +109,13 @@ export function FieldInput({ field, value, placeholder, error, onChange }: Field
           onValueChange={(e) => onChange(field.name, e.value ?? "")}
           size="lg"
         >
-          <SegmentGroup.Indicator />
-          <SegmentGroup.Items items={field.options ?? []} />
+          <SegmentGroup.Indicator bg="brand.100" boxShadow="none" />
+          {field.options?.map((o) => (
+            <SegmentGroup.Item key={o.value} value={o.value} cursor="pointer">
+              <SegmentGroup.ItemText>{o.label}</SegmentGroup.ItemText>
+              <SegmentGroup.ItemHiddenInput />
+            </SegmentGroup.Item>
+          ))}
         </SegmentGroup.Root>
       )}
 
@@ -111,6 +136,7 @@ export function FieldInput({ field, value, placeholder, error, onChange }: Field
             value={[value === "" ? Number(field.min) : Number(value)]}
             onValueChange={(e) => onChange(field.name, String(e.value[0]))}
             colorPalette="brand"
+            cursor="pointer"
           >
             <Slider.Control>
               <Slider.Track>
