@@ -17,7 +17,7 @@ export interface FieldConfig {
   min?: number;
   max?: number;
   step?: number;
-  icon?: string; // nombre semántico (mapea a un ícono de Lucide en la UI)
+  icon?: string;
 }
 
 export interface FormSection {
@@ -211,12 +211,6 @@ export const SECTIONS: FormSection[] = [
   },
 ];
 
-// Lista plana de los 13 nombres (para construir el estado inicial).
+
 export const FIELD_NAMES = SECTIONS.flatMap((s) => s.fields.map((f) => f.name));
 
-// Valores de ejemplo (paciente de alto riesgo de inference.py) → demo testeable.
-export const EXAMPLE_PATIENT: Record<string, string> = {
-  age: "", sex: "", cp: "", trestbps: "", chol: "", fbs: "",
-  restecg: "", thalach: "", exang: "", oldpeak: "", slope: "",
-  ca: "", thal: "",
-};

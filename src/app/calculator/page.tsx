@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -18,22 +18,30 @@ import { Activity, AlertCircle, ArrowRight, RotateCcw, Sparkles } from "lucide-r
 import { SiteHeader } from "@/components/SiteHeader";
 import { FieldInput } from "@/components/FieldInput";
 import { ResultPanel } from "@/components/ResultPage";
-import { SECTIONS, FIELD_NAMES, EXAMPLE_PATIENT } from "@/data/fields";
+import { SECTIONS, FIELD_NAMES } from "@/data/fields";
 import type { PredictionResult } from "@/lib/risk";
+import {usePersistentState} from '@/app/customHook'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-const initialForm: Record<string, string> = { ...EXAMPLE_PATIENT };
+const STORAGE_KEY = "cardio_form"
+const RESULT_KEY = "cardio_result"
+
+const initialForm: Record<string, string> = Object.fromEntries(
+  FIELD_NAMES.map((n)=>[n,""])
+)
 export default function CalculatorPage() {
-  const [form, setForm] = useState<Record<string, string>>(initialForm);
+  const [form, setForm] = usePersistentState<Record<string, string>>(STORAGE_KEY, initialForm)
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [result, setResult] = useState<PredictionResult | null>(null);
+  const [result, setResult] = usePersistentState<PredictionResult | null>(RESULT_KEY, null);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+
 
   function handleChange(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if(result) setResult(null)
   }
 
   function validate(): boolean {
@@ -75,10 +83,11 @@ export default function CalculatorPage() {
   }
 
   function handleReset() {
-    setForm({ ...EXAMPLE_PATIENT });
+    setForm(initialForm);
     setErrors({});
     setResult(null);
     setApiError(null);
+    sessionStorage.removeItem(STORAGE_KEY)
   }
 
   return (
@@ -91,8 +100,7 @@ export default function CalculatorPage() {
             Heart Disease Risk Calculator
           </Heading>
           <Text color="fg.muted" maxW="640px">
-            Enter the patient&apos;s clinical measurements. Each field includes guidance — hover the
-            info icon for the medical meaning. All fields are required.
+            Enter the patient&apos;s clinical measurements. All fields are required.
           </Text>
         </VStack>
 
