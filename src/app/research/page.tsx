@@ -123,12 +123,12 @@ const METRICS = [
 ];
 
 const SHAP_TABLE = [
-  { f: "cp", v: 22.5, note: "Chest pain type — the strongest signal" },
-  { f: "ischemia_score", v: 17.6, note: "Engineered ischemia feature" },
-  { f: "est_stroke_volume", v: 15.1, note: "Non-linear cardiac efficiency" },
-  { f: "thal", v: 13.7, note: "Key diagnostic feature" },
-  { f: "sex", v: 8.8, note: "Contributed to predictions" },
-  { f: "slope", v: 6.5, note: "ST-segment pattern" },
+  { f: "ischemia_score", v: 28.9, note: "Engineered ischemia feature" },
+  { f: "cp", v: 25.0, note: "Chest pain type — the strongest signal" },
+  { f: "est_stroke_volume", v: 17.9, note: "Non-linear cardiac efficiency" },
+  { f: "thal", v: 15.6, note: "Key diagnostic feature" },
+  { f: "sex", v: 11.0, note: "Contributed to predictions" },
+  { f: "slope", v: 1.5, note: "ST-segment pattern" },
 ];
 
 const SKILLS = [
@@ -268,10 +268,7 @@ export default function ResearchPage() {
           <SectionBlock eyebrow="Pipeline" title="10 step workflow">
             <Text color="fg.muted" lineHeight="1.7">
               From raw CSV to a model served in production, the project follows
-              ten deliberate steps. The guiding principle runs through all of
-              them: <strong>split the data before touching it</strong>, so
-              nothing from the validation or test set ever leaks into
-              preprocessing or training. Hover or tap any card to see what
+              ten deliberate steps. Hover or tap any card to see what
               happens at each stage.
             </Text>
             <PipelineFlow />
@@ -280,9 +277,7 @@ export default function ResearchPage() {
             <Text color="fg.muted" lineHeight="1.7">
               The study uses the Kaggle/UCI heart-disease dataset, deduplicated
               to <strong>302 unique patients</strong>. It is framed as binary
-              classification (0 = no disease, 1 = disease). Because missing a
-              sick patient is costlier than a false alarm,{" "}
-              <strong>recall</strong> is the priority metric.
+              classification (0 = no disease, 1 = disease).
             </Text>
             <FigureGrid
               figures={[
@@ -343,7 +338,7 @@ export default function ResearchPage() {
           </SectionBlock>
           <SectionBlock eyebrow="Exploratory analysis" title="Correlation">
             <SubLabel>Correlation with target</SubLabel>
-            
+
             <FigureGrid figures={CORR_FIGS} columns={{ base: 1, md: 1 }} />
           </SectionBlock>
 
@@ -409,14 +404,13 @@ export default function ResearchPage() {
             </Box>
           </SectionBlock>
 
-          <SectionBlock
-            eyebrow="The results"
-            title="XGBoost selected"
-          >
+          <SectionBlock eyebrow="Model evaluation" title="XGBoost selected">
             <Text color="fg.muted" lineHeight="1.7">
-             ROC curves on the held-out test set — all three models clearly beat the random baseline, with XGBoost achieving the highest AUC (0.894).
-            
+              ROC curves on the held-out test set — all three models clearly
+              beat the random baseline, with XGBoost achieving the highest AUC
+              (0.894).
             </Text>
+
             <FigureGrid
               figures={[
                 {
@@ -426,7 +420,11 @@ export default function ResearchPage() {
               ]}
               columns={{ base: 1, md: 1 }}
             />
-
+            <Text color="fg.muted" lineHeight="1.7">
+              XGBoost was selected for the strongest ROC-AUC with an acceptable
+              generalization gap (0.050). Random Forest showed the widest gap
+              (0.063), a sign of mild overfitting.
+            </Text>
             <Box
               bg="bg.surface"
               borderRadius="l2"
@@ -467,6 +465,7 @@ export default function ResearchPage() {
                       CV Gap
                     </Text>
                   </Flex>
+
                   {METRICS.map((r) => (
                     <Flex
                       key={r.model}
@@ -543,51 +542,40 @@ export default function ResearchPage() {
                 </Box>
               </Box>
             </Box>
-            <Text fontSize="sm" color="fg.muted" lineHeight="1.6">
-              XGBoost was selected for the strongest ROC-AUC with an acceptable
-              generalization gap (0.050). Random Forest showed the widest gap
-              (0.063), a sign of mild overfitting.
-            </Text>
-
           </SectionBlock>
-          <SectionBlock
-            eyebrow="The results"
-            title="Confusion Matrix"
-          >
-             <Text fontSize="sm" color="fg.muted" mt={3} lineHeight="1.6">
-                The model correctly identified <strong>26 of 33</strong>{" "}
-                patients with heart disease (recall 78.8%), but missed{" "}
-                <strong>7</strong> — an important limitation in a screening
-                context.
-              </Text>
-             <SubLabel> XGBoost (test set)</SubLabel>
-              <ConfusionMatrix />
-             </SectionBlock>
 
-          {/* ── EXPLAINABILITY ── */}
-          <SectionBlock
-            eyebrow="Explainability"
-            title="Why the model decides what it decides"
-          >
+          <SectionBlock eyebrow="Model Explainability" title="RECALL">
+            <Text fontSize="sm" color="fg.muted" mt={3} lineHeight="1.6">
+              The model correctly identified <strong>26 of 33</strong> patients
+              with heart disease (recall 78.8%).
+            </Text>
+            <Box >
+              <ConfusionMatrix />
+            </Box>
+          </SectionBlock>
+
+          <SectionBlock eyebrow="Model Explainability" title="Explore both global feature importance and individual prediction.">
+ 
             <FigureGrid
               figures={[
                 {
                   src: "/figures/shap_bar.png",
-                  cap: "Global feature importance (mean |SHAP|).",
+                  cap: "Average absolute SHAP values showing which clinical variables have the greatest influence across all model predictions.",
                 },
                 {
                   src: "/figures/shap_beeswarm.png",
-                  cap: "Beeswarm — direction & magnitude per feature.",
+                  cap: "Displays how each feature contributes to increasing or decreasing the predicted cardiovascular risk across the entire dataset.",
                 },
                 {
                   src: "/figures/shap_force_patient_0.png",
-                  cap: "Force plot — one patient explained.",
+                  cap: "Explains how each clinical feature influences the prediction for a single patient, highlighting the factors that increase or decrease the estimated risk.",
                 },
               ]}
               columns={{ base: 1, md: 3 }}
             />
-
-            {/* SHAP importance table with bars */}
+            <Text fontSize="sm" color="fg.muted" mt={3} lineHeight="1.6">
+              SHAP (SHapley Additive exPlanations) provides transparent explanations for machine learning predictions by quantifying how each clinical variable contributes to the estimated cardiovascular risk.
+            </Text>
             <VStack
               align="stretch"
               gap={3}
@@ -638,7 +626,7 @@ export default function ResearchPage() {
                 </Box>
               ))}
             </VStack>
-            <Box
+            {/* <Box
               bg="bg.surface"
               borderRadius="l2"
               border="1px solid"
@@ -694,133 +682,9 @@ export default function ResearchPage() {
                   </Text>
                 </VStack>
               </Flex>
-            </Box>
+            </Box> */}
           </SectionBlock>
 
-          <Box
-            bg="bg.surface"
-            borderRadius="l3"
-            border="1px solid"
-            borderColor="brand.200"
-            boxShadow="card"
-            p={{ base: 6, md: 8 }}
-          >
-            <VStack align="start" gap={4}>
-              <HStack
-                bg="brand.muted"
-                color="brand.fg"
-                px={3}
-                py={1.5}
-                borderRadius="full"
-                fontSize="xs"
-                fontWeight="700"
-              >
-                <Icon as={GraduationCap} boxSize={4} />
-                <Text textTransform="uppercase" letterSpacing="0.06em">
-                  After the project · self-study
-                </Text>
-              </HStack>
-              <Heading
-                as="h2"
-                fontSize={{ base: "2xl", md: "3xl" }}
-                letterSpacing="-0.02em"
-              >
-                Going further: nested CV, Optuna &amp; statistical testing
-              </Heading>
-              <Text color="fg.muted" lineHeight="1.7" maxW="760px">
-                As a follow-up learning exercise, I revisited model selection
-                with <strong>nested cross-validation</strong> (unbiased
-                generalization estimate), <strong>Optuna</strong> (Bayesian TPE
-                search) and <strong>paired statistical tests</strong> (Wilcoxon
-                + t-test). Across 15 outer folds the three models were{" "}
-                <strong>statistically tied</strong> (ROC-AUC ≈ 0.90, every pair{" "}
-                <em>p</em> &gt; 0.3) — meaning the simpler logistic regression
-                would be an equally defensible choice. The lesson: when models
-                tie, favor the simplest, and back the decision with a test.
-              </Text>
-            </VStack>
-          </Box>
-
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-            <VStack
-              align="stretch"
-              gap={4}
-              bg="bg.surface"
-              borderRadius="l2"
-              border="1px solid"
-              borderColor="blackAlpha.100"
-              boxShadow="card"
-              p={{ base: 5, md: 6 }}
-            >
-              <HStack gap={2} color="brand.600">
-                <Icon as={CheckCircle2} boxSize={5} />
-                <Text
-                  fontWeight="700"
-                  textTransform="uppercase"
-                  letterSpacing="0.06em"
-                  fontSize="sm"
-                >
-                  Skills demonstrated
-                </Text>
-              </HStack>
-              <Flex gap={2} wrap="wrap">
-                {SKILLS.map((s) => (
-                  <Text
-                    key={s}
-                    fontSize="sm"
-                    fontWeight="500"
-                    px={3}
-                    py={1.5}
-                    border="1px solid"
-                    borderColor="blackAlpha.200"
-                    borderRadius="full"
-                  >
-                    {s}
-                  </Text>
-                ))}
-              </Flex>
-            </VStack>
-
-            <VStack
-              align="stretch"
-              gap={4}
-              bg="bg.surface"
-              borderRadius="l2"
-              border="1px solid"
-              borderColor="blackAlpha.100"
-              boxShadow="card"
-              p={{ base: 5, md: 6 }}
-            >
-              <HStack gap={2} color="riskModerate.fg">
-                <Icon as={ShieldAlert} boxSize={5} />
-                <Text
-                  fontWeight="700"
-                  textTransform="uppercase"
-                  letterSpacing="0.06em"
-                  fontSize="sm"
-                >
-                  Limitations
-                </Text>
-              </HStack>
-              <VStack align="stretch" gap={2}>
-                {LIMITATIONS.map((l) => (
-                  <HStack key={l} align="start" gap={2.5}>
-                    <Box
-                      w="6px"
-                      h="6px"
-                      mt={2}
-                      borderRadius="full"
-                      bg="riskModerate.solid"
-                      flexShrink={0}
-                    />
-                    <Text fontSize="sm" color="fg.muted">
-                      {l}
-                    </Text>
-                  </HStack>
-                ))}
-              </VStack>
-            </VStack>
-          </SimpleGrid>
 
           <VStack
             bg="brand.700"
@@ -834,11 +698,12 @@ export default function ResearchPage() {
               fontSize={{ base: "2xl", md: "3xl" }}
               letterSpacing="-0.02em"
             >
-              Let&apos;s talk
+              Let&apos;s collaborate!
             </Heading>
             <Text color="brand.100" maxW="560px">
-              {CONTACT.name} · {CONTACT.role}. Explore the full code on GitHub
-              or reach out directly.
+              {CONTACT.name} - {CONTACT.role}
+              <br/>
+              Explore the full code on GitHub or reach out directly.
             </Text>
             <HStack gap={3} wrap="wrap" justify="center">
               <CtaLink
@@ -1001,12 +866,10 @@ export function CtaLink({
       asChild
     >
       <NextLink href={href} target="_blank" rel="noopener noreferrer">
-        {/* CORRECCIÓN 1: El Icon ahora solo envuelve al vector gráfico */}
         <Icon size="sm" asChild>
           <IconComponent />
         </Icon>
 
-        {/* CORRECCIÓN 2: El texto va afuera del componente Icon, al mismo nivel */}
         <Text>{label}</Text>
       </NextLink>
     </HStack>
@@ -1014,50 +877,77 @@ export function CtaLink({
 }
 
 function ConfusionMatrix() {
-  const cell = (
-    label: string,
-    value: number,
-    tone: "good" | "warn" | "bad",
-  ) => {
-    const bg =
-      tone === "good"
-        ? "riskLow.subtle"
-        : tone === "warn"
-          ? "riskModerate.subtle"
-          : "riskCritical.subtle";
-    const fg =
-      tone === "good"
-        ? "riskLow.fg"
-        : tone === "warn"
-          ? "riskModerate.fg"
-          : "riskCritical.fg";
+  const BRAND = "31, 111, 203";
+  const MAX = 26;
+
+  const Cell = ({ value, tag }: { value: number; tag: string }) => {
+    const alpha = 0.1 + 0.9 * (value / MAX); // más valor → más intenso
+    const dark = alpha >= 0.55;
     return (
-      <VStack bg={bg} color={fg} borderRadius="l1" py={5} gap={0}>
-        <Text fontSize="3xl" fontWeight="800">
+      <VStack
+        style={{ backgroundColor: `rgba(${BRAND}, ${alpha})` }}
+        color={dark ? "white" : "brand.800"}
+        borderRadius="l1"
+        py={6}
+        gap={0}
+        maxW="100%"
+      >
+        <Text fontSize="3xl" fontWeight="800" lineHeight="1">
           {value}
         </Text>
-        <Text fontSize="xs" fontWeight="600">
-          {label}
+        <Text fontSize="xs" fontWeight="600" opacity={0.85}>
+          {tag}
         </Text>
       </VStack>
     );
   };
+
+  const ColHead = ({ children }: { children: React.ReactNode }) => (
+    <Text
+      fontSize="xs"
+      fontWeight="700"
+      color="fg.muted"
+      textAlign="center"
+      textTransform="uppercase"
+      letterSpacing="0.04em"
+    >
+      {children}
+    </Text>
+  );
+  const RowHead = ({ children }: { children: React.ReactNode }) => (
+    <Flex align="center" justify="flex-end" pr={2} >
+      <Text
+        fontSize="xs"
+        fontWeight="700"
+        color="fg.muted"
+        textAlign="right"
+        textTransform="uppercase"
+        letterSpacing="0.04em"
+      >
+        {children}
+      </Text>
+    </Flex>
+  );
+
   return (
-    <Box>
-      <SimpleGrid columns={2} gap={3} maxW="440px">
-        {cell("True Negative", 24, "good")}
-        {cell("False Positive", 4, "warn")}
-        {cell("False Negative", 7, "bad")}
-        {cell("True Positive", 26, "good")}
-      </SimpleGrid>
-      <HStack gap={4} mt={2} maxW="440px" fontSize="xs" color="fg.muted">
-        <Text flex="1" textAlign="center">
-          ← Predicted No Disease
-        </Text>
-        <Text flex="1" textAlign="center">
-          Predicted Disease →
-        </Text>
-      </HStack>
+    <Box
+      maxW="480px"
+      display="grid"
+      gridTemplateColumns="96px 1fr 1fr"
+      gap={2.5}
+    >
+      {/* Header */}
+      <Box />
+      <ColHead>Pred. No Disease</ColHead>
+      <ColHead>Pred. Disease</ColHead>
+      {/* Row 1 */}
+      <RowHead>Actual No Disease</RowHead>
+      <Cell value={24} tag="True Negative" />
+      <Cell value={4} tag="False Positive" />
+      {/* Row 2 */}
+      <RowHead>Actual Disease</RowHead>
+      <Cell value={7} tag="False Negative" />
+      <Cell value={26} tag="True Positive" />
     </Box>
   );
 }
