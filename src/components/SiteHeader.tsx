@@ -17,7 +17,7 @@ export function SiteHeader() {
       borderColor="blackAlpha.100"
     >
       <Flex
-        maxW="1120px"
+        maxW="1420px"
         mx="auto"
         px={{ base: 5, md: 8 }}
         h="64px"
