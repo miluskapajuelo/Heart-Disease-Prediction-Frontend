@@ -3,32 +3,38 @@
 import {
   Box,
   Flex,
-  Heading,
   HStack,
   Icon,
-  SimpleGrid,
   Text,
   VStack,
+  Button,
 } from "@chakra-ui/react";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  HeartPulse,
-  Info,
-  Stethoscope,
-} from "lucide-react";
-import { RiskPage } from '@/components/RiskPage';
+import { Info, FileText } from "lucide-react";
+import { RiskPage } from "@/components/RiskPage";
 import { Heartbeat } from "@/components/Heartbeat";
-import { getRiskTier, RISK_SCALE, type PredictionResult, RISK_HEX } from "@/lib/risk";
-import { useEffect } from "react";
+import { getRiskTier, type PredictionResult, RISK_HEX } from "@/lib/risk";
+import { RiskReportDocument } from "@/components/report/RiskReportDocument";
+import { useState } from "react";
 
 export function ResultPanel({ result }: { result: PredictionResult }) {
   const tier = getRiskTier(result.probability);
-  const positive = result.prediction === 1;
   const pct = Math.round(result.probability * 100);
   const solid = `${tier.key}.solid`;
   const hex = RISK_HEX[tier.key];
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  async function handlePreviewReport() {
+    setIsGenerating(true);
+    try {
+      const { pdf } = await import("@react-pdf/renderer");
+      const blob = await pdf(<RiskReportDocument result={result} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   return (
     <VStack
@@ -53,44 +59,106 @@ export function ResultPanel({ result }: { result: PredictionResult }) {
         }
       `}</style>
 
-
       <Box className="rise" style={{ animationDelay: "0.05s" }}>
         <Heartbeat color={hex} />
       </Box>
 
-      <VStack className="rise" style={{ animationDelay: "0.12s" }} align="start" gap={1}>
-        <Text fontSize="xs" fontWeight="700" letterSpacing="0.12em" textTransform="uppercase" color="fg.muted">
+      <VStack
+        className="rise"
+        style={{ animationDelay: "0.12s" }}
+        align="start"
+        gap={1}
+      >
+        <Text
+          fontSize="xs"
+          fontWeight="700"
+          letterSpacing="0.12em"
+          textTransform="uppercase"
+          color="fg.muted"
+        >
           Your estimate
         </Text>
-        <Text fontSize={{ base: "2xl", md: "3xl" }} fontWeight="800" letterSpacing="-0.02em" lineHeight="1.15">
+        <Text
+          fontSize={{ base: "2xl", md: "3xl" }}
+          fontWeight="800"
+          letterSpacing="-0.02em"
+          lineHeight="1.15"
+        >
           {tier.headline}
         </Text>
       </VStack>
 
-      <Flex className="rise" style={{ animationDelay: "0.2s" }} direction={{ base: "column", sm: "row" }} align="center" gap={8}>
+      <Flex
+        className="rise"
+        style={{ animationDelay: "0.2s" }}
+        direction={{ base: "column", sm: "row" }}
+        align="center"
+        gap={8}
+      >
         <RiskPage probability={result.probability} riskKey={tier.key} />
 
         <VStack align={{ base: "center", sm: "start" }} gap={3} flex="1">
           <VStack align={{ base: "center", sm: "start" }} gap={0.5}>
-            <Text fontSize="xs" color="fg.muted" fontWeight="600" textTransform="uppercase" letterSpacing="0.08em">
+            <Text
+              fontSize="xs"
+              color="fg.muted"
+              fontWeight="600"
+              textTransform="uppercase"
+              letterSpacing="0.08em"
+            >
               Risk level
             </Text>
-            <Text fontSize="4xl" fontWeight="800" letterSpacing="-0.02em" color={solid} lineHeight="1.1">
+            <Text
+              fontSize="4xl"
+              fontWeight="800"
+              letterSpacing="-0.02em"
+              color={solid}
+              lineHeight="1.1"
+            >
               {tier.label}
             </Text>
           </VStack>
         </VStack>
       </Flex>
 
-
-      <Text className="rise" style={{ animationDelay: "0.34s" }} fontSize="sm" color="fg.muted" lineHeight="1.6">
+      <Text
+        className="rise"
+        style={{ animationDelay: "0.34s" }}
+        fontSize="sm"
+        color="fg.muted"
+        lineHeight="1.6"
+      >
         {tier.interpretation}
       </Text>
-
-      <HStack gap={2} pt={4} borderTop="1px solid" borderColor="blackAlpha.100" align="start">
+      <Box>
+        <Button
+          bg="brand.100"
+          color="brand.500"
+          border="1px solid"
+          borderColor="brand.100"
+          onClick={handlePreviewReport}
+          loading={isGenerating}
+          style={{ width: "100%" }}
+          _hover={{
+            bg: "brand.500",
+            color: "brand.50"
+          }}
+        >
+          <Icon as={FileText} boxSize={4} />
+          Donwload report
+        </Button>
+      </Box>
+      <HStack
+        gap={2}
+        pt={4}
+        borderTop="1px solid"
+        borderColor="blackAlpha.100"
+        align="start"
+      >
         <Icon as={Info} boxSize={3.5} color="fg.muted" mt={0.5} />
         <Text fontSize="xs" color="fg.muted" lineHeight="1.5">
-          Machine-learning estimate · not a diagnosis · does not replace a qualified healthcare provider.
+          Machine-learning estimate · not a diagnosis · does not replace a
+          qualified healthcare provider.
         </Text>
       </HStack>
     </VStack>
